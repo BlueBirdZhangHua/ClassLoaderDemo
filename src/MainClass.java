@@ -1,3 +1,8 @@
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import classloader.MyClassLoader;
+
 
 public class MainClass {
 
@@ -8,6 +13,7 @@ public class MainClass {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+		testThree();
 	}
 	
 	public static void testOne(){
@@ -31,19 +37,55 @@ public class MainClass {
 		System.out.println("=============TestTwo==========");
 		ClassLoader classLoader = MainClass.class.getClassLoader();
 		System.out.println(classLoader);
-		//使用ClassLoader的loadClass加载Class 不会执行静态初始化代码块
-		System.out.println("Load by ClassLoader");
-		classLoader.loadClass("TestClass");
-		//使用Class.forName加载Class默认执行，静态初始化代码块
-		System.out.println("Load by Class.forName");
-		Class.forName("TestClass");
-		//使用CLass.forName加载Class，并设置对应的ClassLoader，第二个参数决定会不会执行静态初始化代码块
+		//1.使用ClassLoader的loadClass加载Class 不会执行静态初始化代码块. 需要调用NewInstance
+	
+//		System.out.println("Load by ClassLoader");
+//		Class loadedClass = classLoader.loadClass("TestClass");
+//		try {
+//			loadedClass.newInstance();
+//		} catch (InstantiationException e) {
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			e.printStackTrace();
+//		}
+		
+		//2.使用Class.forName加载Class默认执行，静态初始化代码块
+//		System.out.println("Load by Class.forName");
+//		Class.forName("TestClass");
+		//3.使用CLass.forName加载Class，并设置对应的ClassLoader，第二个参数决定会不会执行静态初始化代码块
 		System.out.println("Load by Class.forName");
 		Class.forName("TestClass", false, classLoader);
-		Class.forName("TestClass", true, classLoader);
+//		Class.forName("TestClass", true, classLoader);
 		//指定的Class只注册在AppClassLoader上。ExtenedClassLoader只调用自己和父加载器的loadClass所以会抛出异常
 		classLoader.getParent().loadClass("TestClass");
 	}
 
-	
+	private static void testThree(){
+		String dirPath = "file:E:/GitWorkSpace";
+		MyClassLoader myClassLoader = new MyClassLoader(dirPath);
+		try {
+			Class loadedClass = myClassLoader.loadClass("MainTest");
+			try {
+				Object object = loadedClass.newInstance();
+				Method method = loadedClass.getMethod("sayHellow", null);
+				method.invoke(object, null);
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+			
+			System.out.println(loadedClass.getName());
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
 }
