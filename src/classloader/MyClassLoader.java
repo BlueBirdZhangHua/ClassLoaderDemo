@@ -36,8 +36,7 @@ public class MyClassLoader extends ClassLoader {
             throw new ClassNotFoundException();  
         }  
 		System.out.println("Size"+classData.length);
-        Class loadedClass = defineClass(arg0, classData, 0, classData.length);  //将class的字节码数组转换成Class类的实例  
-		return loadedClass;
+		return  defineClass(arg0, classData, 0, classData.length);  //将class的字节码数组转换成Class类的实例  
 	}
 
 	private byte[] getClassData(String name) {

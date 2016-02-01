@@ -39,29 +39,46 @@ public class MainClass {
 		System.out.println(classLoader);
 		//1.使用ClassLoader的loadClass加载Class 不会执行静态初始化代码块. 需要调用NewInstance
 	
-//		System.out.println("Load by ClassLoader");
-//		Class loadedClass = classLoader.loadClass("TestClass");
-//		try {
-//			loadedClass.newInstance();
-//		} catch (InstantiationException e) {
-//			e.printStackTrace();
-//		} catch (IllegalAccessException e) {
-//			e.printStackTrace();
-//		}
+		System.out.println("Load by ClassLoader");
+		Class loadedClass = classLoader.loadClass("TestClass");
+		try {
+			Object object = loadedClass.newInstance();
+			Method methodPrivate = TestClass.class.getDeclaredMethod("sayHelloPrivate", null);
+			methodPrivate.setAccessible(true);
+			methodPrivate.invoke(object, null);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		//2.使用Class.forName加载Class默认执行，静态初始化代码块
 //		System.out.println("Load by Class.forName");
-//		Class.forName("TestClass");
+		Class.forName("TestClass");
 		//3.使用CLass.forName加载Class，并设置对应的ClassLoader，第二个参数决定会不会执行静态初始化代码块
 		System.out.println("Load by Class.forName");
-		Class.forName("TestClass", false, classLoader);
-//		Class.forName("TestClass", true, classLoader);
+//		Class.forName("TestClass", false, classLoader);
+		Class.forName("TestClass", true, classLoader);
 		//指定的Class只注册在AppClassLoader上。ExtenedClassLoader只调用自己和父加载器的loadClass所以会抛出异常
-		classLoader.getParent().loadClass("TestClass");
+//		classLoader.getParent().loadClass("TestClass");
+		
+		
 	}
 
 	private static void testThree(){
-		String dirPath = "file:E:/GitWorkSpace";
+		String dirPath = "file:E:/GitWorkSpace";//class 文件位置
 		MyClassLoader myClassLoader = new MyClassLoader(dirPath);
 		try {
 			Class loadedClass = myClassLoader.loadClass("MainTest");
@@ -69,6 +86,10 @@ public class MainClass {
 				Object object = loadedClass.newInstance();
 				Method method = loadedClass.getMethod("sayHellow", null);
 				method.invoke(object, null);
+				
+				Method methodPrivate = loadedClass.getMethod("sayHelloPrivate", null);
+				methodPrivate.setAccessible(true);
+				methodPrivate.invoke(object, null);
 			} catch (InstantiationException e) {
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
